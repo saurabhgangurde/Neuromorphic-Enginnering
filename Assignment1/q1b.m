@@ -31,16 +31,22 @@ legend('N2','N4','N6','N8');
 
 %% Q 1d
 interval=[];
+Avg_interval=[];
 
 for j=1:size(y,1)
+    prev_spike=0;
     for i=2:size(y,2)
         if y(j,i)== EL
-            interval=[interval i*delta_t];
+            
+            interval=[interval (i-prev_spike)*delta_t];
+            prev_spike=i;
             break
         end
     end
+    Avg_interval=[Avg_interval mean(interval)];
 end
 figure(2)
-plot(interval,'linewidth',3.0);
+Ik=1:1:10;
+plot(Ik,Avg_interval,'-o','linewidth',2.0);
 
             
