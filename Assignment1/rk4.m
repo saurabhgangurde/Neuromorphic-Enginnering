@@ -30,10 +30,10 @@ for i=1:size(x,2)-1
 
             % spiking 
             temp=V(:,i+1);
-            index=find(temp>20*10^-3);
-            temp(temp>20*10^-3)=c;
+            index=find(temp>v_peak);
+            temp(temp>v_peak)=c;
             V(:,i+1)=temp;
-            V(index,i)=v_peak;
+            V(index,i)=60E-3;
             
             U(index,i+1)=U(index,i+1)+d;
 end
