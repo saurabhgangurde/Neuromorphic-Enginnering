@@ -1,6 +1,6 @@
 function [V,U] = rk4(delta_t,T,input,neuron_type)
 
-    [C,kz,Er,Et,a,b,c,d,v_peak]=neuron_data(neuron_type);
+    [C,kz,Er,Et,a,b,c,d,v_peak]=neuron_data(neuron_type);  % steady state voltage calculaation
     polynom = [kz/c,-1-((Er+Et)*kz/b),Er+Er*Et*kz/b];
     root_temp=roots(polynom);
     
@@ -8,8 +8,8 @@ function [V,U] = rk4(delta_t,T,input,neuron_type)
     V = zeros(size(input,1),size(x,2)); 
     U = zeros(size(input,1),size(x,2)); 
     
-    V(:,1) = root_temp(2);                                          % initial condition
-    U(:,1) = (root_temp(2)-Er)*b;                                          % initial condition
+    V(:,1) = root_temp(2);                                     % initial condition
+    U(:,1) = (root_temp(2)-Er)*b;                              % initial condition
     
     F_xy = @(I,v,u) (1/C)*(kz*(v.^2-(Et+Er)*v+Et*Er)-u+I);% change the function as you desire
     G_xy = @(I,v,u) a*(b*(v-Er)-u);

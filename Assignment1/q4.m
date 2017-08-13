@@ -1,18 +1,16 @@
 N=1;
-T=0.500;
-delta_t= 0.01 * 10^-3;
-M=ceil(T/delta_t);
-input=zeros(1,M);
-for i=6000:9000
-    input(1,i)=15*10^-2;
-end
+T=500;
+
+input=@(t) 15*(heaviside(t-60)-heaviside(t-90));
 
 %% Q.4a
-[volt,m,n,h] = rk4_q4(delta_t,T,input);
-x = 0:delta_t:T;
-
+[volt,m,n,h,x] = rk4_q4(T,input);
 
 figure()
 
 plot(x,volt)
+
+
+
+
 
