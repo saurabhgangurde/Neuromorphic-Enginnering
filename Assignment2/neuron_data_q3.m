@@ -1,4 +1,7 @@
 function [C,gL,EL,vT,del_T,a,tau_w,b,Vr]=neuron_data_q3(neuron_type)
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+
     if neuron_type==1
         C=200 *10^-12;
         gL=10*10^-9;
@@ -32,4 +35,6 @@ function [C,gL,EL,vT,del_T,a,tau_w,b,Vr]=neuron_data_q3(neuron_type)
         b=100*10^-12;
         Vr=-46*10^-3;
     end
+
 end
+

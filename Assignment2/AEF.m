@@ -1,42 +1,41 @@
-function [y,z] = AEF(delta_t,T,input,neuron_type)
+function [V,U] = AEF(delta_t,T,input,neuron_type)
     
-    x = 0:delta_t:T;                                          % Calculates upto y(3)
-    y = zeros(size(input,1),size(x,2)); 
-    z = zeros(size(input,1),size(x,2)); 
+   [C,gL,EL,vT,del_T,a,tau_w,b,Vr]=neuron_data_q3(neuron_type);
+
+    x = 0:delta_t:T;                                         % Calculates upto y(3)
+    
+    
+    syms V U 
+    [sol_V,sol_U] = vpasolve([-gL*(V-EL)+(gL*del_T*exp((V-vT)/del_T)) == U , a*(V-EL) == U], [V,U] );
+
+    sol_V= double(sol_V);
+    sol_U=double(sol_U); 
+    
+    V = zeros(size(input,1),size(x,2)); 
+    U = zeros(size(input,1),size(x,2)); 
+    
+    V(:,1) = double(sol_V);                                          % initial condition
+    U(:,1) = double(sol_U);                                          % initial condition
+
+    F_xy = @(I,v,u) (1/C)*(-gL*(v-EL)+gL*del_T*exp((v-vT)/del_T)-u+I);% change the function as you desire
+    G_xy = @(I,v,u) (1/tau_w)*(a*(v-EL)-u);
     
     %% loop for V calc
-    for j=1:(size(input,1))
-        
-        [C,gL,EL,vT,del_T,a,tau_w,b,Vr]=nueron_data_q3(neuron_type(j));
-
-        %%% calculating steady state initial value for 3a
-        syms V U 
-        [sol_V,sol_U] = vpasolve([-gL*(V-EL)+(gL*del_T*exp((V-vT)/del_T)) == U , a*(V-EL) == U], [V,U] );
-
-        V(j,1) = sol_V;                                          % initial condition
-        U(j,1) = sol_U;                                          % initial condition
-
-        F_xy = @(I,v,u) (1/C)*(-gL*(v-EL)+gL*del_T*exp((v-vT)/del_T)-u+I);% change the function as you desire
-        G_xy = @(I,v,u) (1/tau_w)*(a*(v-EL)-u);
-
-        for i=1:size(x,2)-1 
-%             k0=F_xy(input(j,i),y(j,i),z(j,i)); 
-%             l0=G_xy(input(j,i),y(j,i),z(j,i));
-%             k1=F_xy(input(j,i),y(j,i)+0.5*k0*delta_t,z(j,i)+0.5*l0*delta_t);
-%             l1=G_xy(input(j,i),y(j,i)+0.5*k0*delta_t,z(j,i)+0.5*l0*delta_t);
-%             k2=F_xy(input(j,i),y(j,i)+0.5*k1*delta_t,z(j,i)+0.5*l1*delta_t);
-%             l2=G_xy(input(j,i),y(j,i)+0.5*k1*delta_t,z(j,i)+0.5*l1*delta_t);
-%             k3=F_xy(input(j,i),y(j,i)+k2*delta_t,z(j,i)+l2*delta_t);
-%             l3=G_xy(input(j,i),y(j,i)+k2*delta_t,z(j,i)+l2*delta_t);
+for i=1:size(x,2)-1 
+           
+            k0=F_xy(input(:,i),V(:,i),U(:,i)); 
+            l0=G_xy(input(:,i),V(:,i),U(:,i));
             
-            y(j,i+1)=y(j,i)+(1/6)*(k0+2*k1+2*k2+k3)*delta_t;
-            z(j,i+1)=z(j,i)+(1/6)*(l0+2*l1+2*l2+l3)*delta_t;
+            V(:,i+1)=V(:,i)+k0*delta_t;
+            U(:,i+1)=U(:,i)+l0*delta_t;
 
-            if y(j,i+1)>0
-                        
-                        y(j,i+1)=Vr;
-                        z(j,i+1)=z(j,i)+b;
-            end
-        end
-    end
+            % spiking 
+            temp=V(:,i+1);
+            index=find(temp>0);
+            temp(temp>0)=Vr;
+            V(:,i+1)=temp;
+            V(index,i)=50E-3;
+            
+            U(index,i+1)=U(index,i+1)+b;
+end
 end
