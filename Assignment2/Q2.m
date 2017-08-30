@@ -22,10 +22,12 @@ taus=tau/4;
 t=0:delta_t:T;
 Iapp_global=zeros(size(t));
 
+synapse_strengths=Wo+sigma_w*randn(1,Ns);
+
 for k=1:1:Ns
 
     tm=find(myPoissonSpikeTrain(k,:)==1)*0.1*ms;
-    Iapp_synopse=zeros(size(t));
+    Iapp_synapse=zeros(size(t));
 
         for j=1:size(t,2)
             temp=0;
@@ -37,10 +39,10 @@ for k=1:1:Ns
                
 
            end
-           Iapp_synopse(j)=temp;
+           Iapp_synapse(j)=temp;
 
         end
-     Iapp_global=Iapp_global+(Wo+sigma_w*randn())*Iapp_synopse;
+     Iapp_global=Iapp_global+synapse_strengths(k)*Iapp_synapse;
 end
 
 Iapp_global=Io*Iapp_global;
@@ -77,11 +79,12 @@ tau=25*ms;
 taus=tau/4;
 t=0:delta_t:T;
 Iapp_global=zeros(size(t));
+synapse_strengths=Wo+sigma_w*randn(1,Ns);
 
 for k=1:1:Ns
 
     tm=find(myPoissonSpikeTrain(k,:)==1)*0.1*ms;
-    Iapp_synopse=zeros(size(t));
+    Iapp_synapse=zeros(size(t));
 
         for j=1:size(t,2)
             temp=0;
@@ -93,10 +96,10 @@ for k=1:1:Ns
                
 
            end
-           Iapp_synopse(j)=temp;
+           Iapp_synapse(j)=temp;
 
         end
-     Iapp_global=Iapp_global+(Wo+sigma_w*randn())*Iapp_synopse;
+     Iapp_global=Iapp_global+synapse_strengths(k)*Iapp_synapse;
 end
 
 Iapp_global=Io*Iapp_global;
