@@ -10,8 +10,8 @@ myPoissonSpikeTrain = rand(Ns, steps) < lambda*delta_t;
 
 
 Io=1E-12;
-Wo=50;
-sigma_w=5;
+Wo=250;
+sigma_w=25;
 tau=25*ms;
 taus=tau/4;
 t=0:delta_t:T;
@@ -59,19 +59,24 @@ Vold=V;
 Iold=Iapp_global;
 synapse_strengthsold=synapse_strengths;
 %% Learning part
-tmax=find(V==max(V(500:end)))*0.1*ms;
+tspikes=find(V==0.05)*0.1*ms;
+tspikes=tspikes(2:end);
 gamma=1;
 for iteration=1:100
-
+    
+    iteration
     delta_w=zeros(1,Ns);
     delta_tk=zeros(1,Ns);
     for k=1:Ns
         
         tm=find(myPoissonSpikeTrain(k,:)==1)*0.1*ms;
-        indices=find(tm<tmax);
+        indices=find(tm<tspikes(1));
         if size(indices,2)~=0
-            delta_tk(k)=tmax-tm(indices(end));
-            delta_w(k)=synapse_strengths(k)*gamma*(exp(-delta_tk(k)/tau)-exp(-delta_tk(k)/taus));            
+            delta_tk(k)=tspikes(1)-tm(indices(end));
+            if delta_tk<0
+                k,tspike(1),tm(indices(end))
+            end
+            delta_w(k)=-1*synapse_strengths(k)*gamma*(exp(-delta_tk(k)/tau)-exp(-delta_tk(k)/taus));            
             
         end
             
@@ -82,16 +87,17 @@ for iteration=1:100
     Iapp=Io*sum(Iapp);
     [V,U] = AEF(delta_t,T,Iapp,1);
     
-    tmax=find(V==max(V(500:end)))*0.1*ms;
+    tspikes=find(V==0.05)*0.1*ms;
+    tspikes=tspikes(2:end);
     
-    figure();
-    plot(synapse_strengths)
-    hold on;
-    plot(synapse_strengthsold);
-    hold off;
-    xlabel('Synapse Number');ylabel('Synapse Strength');
-    title(sprintf('Synapse Strength(iteration %d)',iteration));
-    legend('Learned','old');
+%     figure();
+%     plot(synapse_strengths)
+%     hold on;
+%     plot(synapse_strengthsold);
+%     hold off;
+%     xlabel('Synapse Number');ylabel('Synapse Strength');
+%     title(sprintf('Synapse Strength(iteration %d)',iteration));
+%     legend('Learned','old');
 
     figure();
     plot(t*1E3,V,t*1E3,Vold);
@@ -99,11 +105,11 @@ for iteration=1:100
     title(sprintf('Voltage Vs Time(iteration %d)',iteration));
     legend('Learned','old');
 
-    figure();
-    plot(t*1E3,Iapp*1E12,t*1E3,Iapp_global*1E12);
-    xlabel('Time in mS');ylabel('Current in pA');
-    title(sprintf('Current Vs Time(iteration %d)',iteration));
-    legend('Learned','old');
+%     figure();
+%     plot(t*1E3,Iapp*1E12,t*1E3,Iapp_global*1E12);
+%     xlabel('Time in mS');ylabel('Current in pA');
+%     title(sprintf('Current Vs Time(iteration %d)',iteration));
+%     legend('Learned','old');
     
     figure();
     plot(delta_tk,delta_w,'o');
@@ -111,7 +117,7 @@ for iteration=1:100
     title(sprintf('deltaw Vs deltatk(iteration %d)',iteration));
     
     spike=find(V==0.05);
-    if size(spike,2)==2
+    if size(spike,2)==1
         break
     end
 end
