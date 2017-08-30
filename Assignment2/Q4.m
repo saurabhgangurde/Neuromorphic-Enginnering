@@ -73,9 +73,6 @@ for iteration=1:100
         indices=find(tm<tspikes(1));
         if size(indices,2)~=0
             delta_tk(k)=tspikes(1)-tm(indices(end));
-            if delta_tk<0
-                k,tspike(1),tm(indices(end))
-            end
             delta_w(k)=-1*synapse_strengths(k)*gamma*(exp(-delta_tk(k)/tau)-exp(-delta_tk(k)/taus));            
             
         end
