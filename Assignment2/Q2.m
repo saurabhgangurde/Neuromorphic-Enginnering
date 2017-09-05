@@ -1,6 +1,6 @@
-%% Q1 
+%% Q2 AEF neuron driven by multiple synapses
 
-%% Q1 Part-A
+%% Q1 Part-A Weak Synapses
 
 
 ms=1E-3;
@@ -59,7 +59,7 @@ figure();
 plot(t*1E3,Iapp_global*1E12);
 xlabel('Time in mS');ylabel('Current in pA');
 title('Current Vs Time');
-%% Q1 Part-B
+%% Q1 Part-B Strong Synapses
 
 ms=1E-3;
 T=500*ms;

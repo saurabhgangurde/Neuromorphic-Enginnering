@@ -1,3 +1,6 @@
+%% Q3 Adjusting the weights to elicit a spike response
+
+%% Q3 part A stimulus generation
 ms=1E-3;
 T=500*ms;
 delta_t=0.1*ms;
@@ -58,7 +61,7 @@ title('Current Vs Time');
 Vold=V;
 Iold=Iapp_global;
 synapse_strengthsold=synapse_strengths;
-%% Learning part
+%% Q3 part B Learning part
 tmax=find(V==max(V(500:end)))*0.1*ms;
 gamma=1;
 for iteration=1:100
@@ -84,7 +87,22 @@ for iteration=1:100
     
     tmax=find(V==max(V(500:end)))*0.1*ms;
     
+
+    figure()
+    subplot(1,2,1)
+    plot(t*1E3,V,t*1E3,Vold);
+    xlabel('Time in mS');ylabel('Voltage in Volts');
+    title(sprintf('Voltage Vs Time(iteration %d)',iteration));
+    legend('Learned','old');
+
+     subplot(1,2,2)
+    plot(t*1E3,Iapp*1E12,t*1E3,Iapp_global*1E12);
+    xlabel('Time in mS');ylabel('Current in pA');
+    title(sprintf('Current Vs Time(iteration %d)',iteration));
+    legend('Learned','old');
+    
     figure();
+    subplot(1,2,1)
     plot(synapse_strengths)
     hold on;
     plot(synapse_strengthsold);
@@ -92,20 +110,8 @@ for iteration=1:100
     xlabel('Synapse Number');ylabel('Synapse Strength');
     title(sprintf('Synapse Strength(iteration %d)',iteration));
     legend('Learned','old');
-
-    figure();
-    plot(t*1E3,V,t*1E3,Vold);
-    xlabel('Time in mS');ylabel('Voltage in Volts');
-    title(sprintf('Voltage Vs Time(iteration %d)',iteration));
-    legend('Learned','old');
-
-    figure();
-    plot(t*1E3,Iapp*1E12,t*1E3,Iapp_global*1E12);
-    xlabel('Time in mS');ylabel('Current in pA');
-    title(sprintf('Current Vs Time(iteration %d)',iteration));
-    legend('Learned','old');
     
-    figure();
+     subplot(1,2,2)
     plot(delta_tk,delta_w,'o');
     xlabel('Time in mS');ylabel('Change in Synapse Strength');
     title(sprintf('deltaw Vs deltatk(iteration %d)',iteration));
@@ -115,5 +121,7 @@ for iteration=1:100
         break
     end
 end
+
+fprintf('Number of iteration needed =%d',iteration);
         
         

@@ -1,3 +1,6 @@
+%% Q5 Discriminating stimuli with similar statistical characteristics
+
+%% Q5 part A geneareting S1,S2 and it's response
 ms=1E-3;
 T=500*ms;
 delta_t=0.1*ms;
@@ -46,16 +49,17 @@ Iapp_global_S1=Io*Iapp_global_S1;
 
 
 figure();
+subplot(2,1,1);
 plot(t*1E3,V_S1);
 xlabel('Time in mS');ylabel('Voltage in Volts');
 title('Voltage Vs Time');
 
-figure();
+subplot(2,1,2);
 plot(t*1E3,Iapp_global_S1*1E12);
 xlabel('Time in mS');ylabel('Current in pA');
 title('Current Vs Time');
 
-%% respond to S2
+% respond to S2
 
 myPoissonSpikeTrain_S2 = rand(Ns, steps) < lambda*delta_t;
 Iapp_global_S2=zeros(size(t));
@@ -89,23 +93,23 @@ Iapp_global_S2=Io*Iapp_global_S2;
 
 
 figure();
+subplot(2,1,1);
 plot(t*1E3,V_S2);
 xlabel('Time in mS');ylabel('Voltage in Volts');
 title('Voltage Vs Time');
 
-figure();
+subplot(2,1,2);
 plot(t*1E3,Iapp_global_S2*1E12);
 xlabel('Time in mS');ylabel('Current in pA');
 title('Current Vs Time');
 
-%%
+%% Q5 part B Removing S2 spike
 Vold=V_S2;
 tspikes=find(V_S2==0.05)*0.1*ms;
 tspikes=tspikes(2:end);
 gamma=1;
 for iteration=1:100
     
-    iteration
     delta_w=zeros(1,Ns);
     delta_tk=zeros(1,Ns);
     for k=1:Ns
@@ -128,24 +132,19 @@ for iteration=1:100
     tspikes=find(V==0.05)*0.1*ms;
     tspikes=tspikes(2:end);
 
-%     figure();
-%     plot(t*1E3,V,t*1E3,Vold);
-%     xlabel('Time in mS');ylabel('Voltage in Volts');
-%     title(sprintf('Voltage Vs Time(iteration %d)',iteration));
-%     legend('Learned','old');
-% 
-%     figure();
-%     plot(delta_tk,delta_w,'o');
-%     xlabel('Time in mS');ylabel('Change in Synapse Strength');
-%     title(sprintf('deltaw Vs deltatk(iteration %d)',iteration));
-    
+   
     spike=find(V==0.05);
     if size(spike,2)==1
         break
     end
 end
 
-%% part c
+figure();
+plot(synapse_strengthsold);
+xlabel('Synapse Number');ylabel('Synapse Strength');
+title(sprintf('Synapse Strengthlearnedd',iteration));
+    
+%% Q5 part C Distinguishing S1 from S2
 
 Iapp=diag(synapse_strengths_S2)*Iapp_synapse_S1;
 Iapp=Io*sum(Iapp);
@@ -156,7 +155,7 @@ plot(t*1E3,V,t*1E3,V_S2);
 xlabel('Time in mS');ylabel('Voltage in Volts');
 title('Weights of S2 and current of S1');
 legend('cross weight response S1','Response S2');
-%% part d
+%% Q5 part D Distinguishing S2 from S1
 
 Vold=V_S1;
 tspikes=find(V_S1==0.05)*0.1*ms;
@@ -164,7 +163,6 @@ tspikes=tspikes(2:end);
 gamma=1;
 for iteration=1:100
     
-    iteration
     delta_w=zeros(1,Ns);
     delta_tk=zeros(1,Ns);
     for k=1:Ns
@@ -187,16 +185,6 @@ for iteration=1:100
     tspikes=find(V==0.05)*0.1*ms;
     tspikes=tspikes(2:end);
 
-%     figure();
-%     plot(t*1E3,V,t*1E3,Vold);
-%     xlabel('Time in mS');ylabel('Voltage in Volts');
-%     title(sprintf('Voltage Vs Time(iteration %d)',iteration));
-%     legend('Learned','old');
-% 
-%     figure();
-%     plot(delta_tk,delta_w,'o');
-%     xlabel('Time in mS');ylabel('Change in Synapse Strength');
-%     title(sprintf('deltaw Vs deltatk(iteration %d)',iteration));
     
     spike=find(V==0.05);
     if size(spike,2)==1

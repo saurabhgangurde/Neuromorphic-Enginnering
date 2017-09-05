@@ -1,6 +1,5 @@
-%% Q1 
-
-%% Q1 Part-A
+%% Q1 AEF neuron driven by a synapse receiving Poisson stimulus
+%% Q1 Part-A Poisson Stimulus
 
 seed=100;
 rng(seed)
@@ -10,10 +9,15 @@ T=500*ms;
 delta_t=0.1*ms;
 steps=T/delta_t;
 lambda=10;
+t=0:delta_t:T;
 
 myPoissonSpikeTrain = rand(1, steps) < lambda*delta_t;
 
-%% Q1 Part-B
+figure();
+plot(t(2:end)*1E3,myPoissonSpikeTrain);
+xlabel('Time in mS');ylabel('Spike');
+title('spike Vs Time');
+%% Q1 Part-B Synapse Current
 Io=1E-12;
 We=500;
 tau=15*ms;
@@ -48,10 +52,7 @@ figure();
 plot(t*1E3,V);
 xlabel('Time in mS');ylabel('Voltage in Volts');
 title('Voltage Vs Time');
-figure();
-plot(t(2:end)*1E3,myPoissonSpikeTrain);
-xlabel('Time in mS');ylabel('Spike');
-title('spike Vs Time');
+
 figure();
 plot(t*1E3,Iapp*1E12);
 xlabel('Time in mS');ylabel('Current in pA');
