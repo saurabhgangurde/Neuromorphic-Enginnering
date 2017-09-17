@@ -1,67 +1,50 @@
 %% Q1 Representing synaptic connectivity and axonal delays
 
 %% Part A
+seed=100;
+rng(seed);
 ms=1E-3;
 N=500;
-
-Weight=cell(1,N);
-Delay=cell(1,N);
 
 %  creating network
 fanout_matrix=zeros(50,N);
 fanout_matrix(:,1:round(N*0.8))=randi([1,500],[50,round(N*0.8)]);
-fanout_matrix(:,round(N*0.8)+1:end)=randi([round(N*0.8)+1,N],[50,N-round(N*0.8)]);
-
+fanout_matrix(:,round(N*0.8)+1:end)=randi([1,round(N*0.8)],[50,N-round(N*0.8)]);
 Fanout=num2cell(fanout_matrix,1);
-Weights_matrix
-%% Part B
+
+Weights_matrix=3000*ones(50,N);
+Weights_matrix(fanout_matrix>round(N*0.8))=-3000;
+Weight=num2cell(Weights_matrix,1);
+
+delay_matrix=randi([1,20],[50,N])*ms;
+delay_matrix(fanout_matrix>round(N*0.8))=1*ms;
+Delay=num2cell(delay_matrix,1);
 
 % constants
-% delta_t=0.1*ms;
-% T=20*ms;
-% t=linspace(0,T,T/delta_t);
-% Io=1E-12;
-% tau=15*ms;
-% tau_s=tau/4;
-% EL=-70*1E-3;
-% gL=30*1E-9;
-% Vt=20*1E-3;
-% C=300*1E-12;
-% Rp=2*ms;
-% input_time=cell(1,N);
-% spike_time=cell(1,N);
-% Iapp=zeros(N,T/delta_t);
-% %% case 1
-% input_time{1}=[0];input_time{2}=[4*ms];input_time{3}=[8*ms];
-% 
-% % forming Iapp matrix
-% for i=1:N
-%     for j=1:size(input_time{i},2)
-%         Iapp(i,input_time{i}(j)/delta_t+1:(input_time{i}(j)+1*ms)/delta_t)=50*1E-9;
-%     end
-% end
-% 
-% [V,t]=LIF( delta_t,T,Iapp(1:3,:),EL,gL,C,Vt);
-% 
-% % finding spike times
-% spike_time{1}=find(V(1,:)==70E-3)*delta_t;spike_time{2}=find(V(2,:)==70E-3)*delta_t;spike_time{3}=find(V(3,:)==70E-3)*delta_t;
-% 
-% % finding synaptic current
-% Isyn=zeros(N,T/delta_t);
-% 
-% Isyn_t= @(we,tk,td,t) Io*we*(exp(-(t-tk-td)/tau)+exp(-(t-tk-td)/tau_s)).*(t>tk+td);
-% for i=1:N
-%     fanout_nodes=Fanout{i};
-%     for j=1:size(fanout_nodes,2)
-%         for k=1:size(spike_time{i},2)
-%             Isyn(fanout_nodes(j),:)=Isyn(fanout_nodes(j),:)+Isyn_t(Weight{i}(j),spike_time{i}(k),Delay{i}(j),t);
-%         end
-%     end
-% end
-% 
-% [V_2_layer,t]=LIF( delta_t,T,Isyn(4:5,:),EL,gL,C,Vt);
-% 
-% figure(1)
-% plot(t,Isyn)
-% figure(2)
-% plot(t,V,t,V_2_layer);
+delta_t=1*ms;
+T=1000*ms;
+t=linspace(0,T,T/delta_t);
+Io=1E-12;
+tau=15*ms;
+tau_s=tau/4;
+EL=-70*1E-3;
+gL=30*1E-9;
+Vt=20*1E-3;
+C=300*1E-12;
+Rp=2*ms;
+ws=3000;
+
+% % forming Iext matrix
+lambda=100;
+myPoissonSpikeTrain = rand(25, T/delta_t) < lambda*delta_t;
+Iext_t= @(ts,t) Io*ws*(exp(-(t-ts)/tau)-exp(-(t-ts)/tau_s)).*(t>ts);
+Iext=zeros(25,T/delta_t);
+for i=1:25
+    ts=find(myPoissonSpikeTrain(i,:)==1)*delta_t;
+    for k=1:size(ts,2)
+        Iext(i,:)=Iext(i,:)+Iext_t(ts(k),t);
+    end
+
+end
+
+[V,t,spikes]=LIF_dynamic( delta_t,T,N,Fanout,Weight,Delay,EL,gL,C,Vt,Iext);

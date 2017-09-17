@@ -16,7 +16,7 @@ Fanout{3}=[4 5];Weight{3}=[3000 3000];Delay{3}=[9*ms 1*ms];
 
 % constants
 delta_t=0.1*ms;
-T=20*ms;
+T=100*ms;
 t=linspace(0,T,T/delta_t);
 Io=1E-12;
 tau=15*ms;
@@ -47,7 +47,7 @@ spike_time{1}=find(V(1,:)==70E-3)*delta_t;spike_time{2}=find(V(2,:)==70E-3)*delt
 % finding synaptic current
 Isyn=zeros(N,T/delta_t);
 
-Isyn_t= @(we,tk,td,t) Io*we*(exp(-(t-tk-td)/tau)+exp(-(t-tk-td)/tau_s)).*(t>tk+td);
+Isyn_t= @(we,tk,td,t) Io*we*(exp(-(t-tk-td)/tau)-exp(-(t-tk-td)/tau_s)).*(t>tk+td);
 for i=1:N
     fanout_nodes=Fanout{i};
     for j=1:size(fanout_nodes,2)
@@ -84,7 +84,7 @@ spike_time{1}=find(V(1,:)==70E-3)*delta_t;spike_time{2}=find(V(2,:)==70E-3)*delt
 % finding synaptic current
 Isyn=zeros(N,T/delta_t);
 
-Isyn_t= @(we,tk,td,t) Io*we*(exp(-(t-tk-td)/tau)+exp(-(t-tk-td)/tau_s)).*(t>tk+td);
+Isyn_t= @(we,tk,td,t) Io*we*(exp(-(t-tk-td)/tau)-exp(-(t-tk-td)/tau_s)).*(t>tk+td);
 for i=1:N
     fanout_nodes=Fanout{i};
     for j=1:size(fanout_nodes,2)
