@@ -1,7 +1,7 @@
 %% Q1 Representing synaptic connectivity and axonal delays
 
 %% Part A
-seed=100;
+seed=200;
 rng(seed);
 ms=1E-3;
 N=500;
@@ -48,3 +48,4 @@ for i=1:25
 end
 
 [V,t,spikes]=LIF_dynamic( delta_t,T,N,Fanout,Weight,Delay,EL,gL,C,Vt,Iext);
+plotRaster(spikes,t);
