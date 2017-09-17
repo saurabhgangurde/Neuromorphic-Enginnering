@@ -4,7 +4,6 @@
 ms=1E-3;
 N=5;
 Fanout=cell(1,N);
-Fanin=cell(1,N);
 Weight=cell(1,N);
 Delay=cell(1,N);
 
@@ -30,7 +29,7 @@ Rp=2*ms;
 input_time=cell(1,N);
 spike_time=cell(1,N);
 Iapp=zeros(N,T/delta_t);
-% case 1
+%% case 1
 input_time{1}=[0];input_time{2}=[4*ms];input_time{3}=[8*ms];
 
 % forming Iapp matrix
@@ -66,7 +65,7 @@ figure(2)
 plot(t,V,t,V_2_layer);
 
 
-% case 2
+%% case 2
 input_time{1}=[7*ms];input_time{2}=[3*ms];input_time{3}=[0*ms];
 Iapp=zeros(N,T/delta_t);
 
