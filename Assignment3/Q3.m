@@ -1,21 +1,24 @@
-%% Q2 Dynamical Random network
+%% Q3 Dynamics of smaller networks
 
 %% Part A
-
+seed=200;
+rng(seed);
 ms=1E-3;
-N=500;
-
+N=200;
+fanout_ratio=N/10;
+gamma=1;
+w_global=2000;
 %  creating network
-fanout_matrix=zeros(50,N);
-fanout_matrix(:,1:round(N*0.8))=randi([1,500],[50,round(N*0.8)]);
-fanout_matrix(:,round(N*0.8)+1:end)=randi([1,round(N*0.8)],[50,N-round(N*0.8)]);
+fanout_matrix=zeros(fanout_ratio,N);
+fanout_matrix(:,1:round(N*0.8))=randi([1,N],[fanout_ratio,round(N*0.8)]);
+fanout_matrix(:,round(N*0.8)+1:end)=randi([1,round(N*0.8)],[fanout_ratio,N-round(N*0.8)]);
 Fanout=num2cell(fanout_matrix,1);
 
-Weights_matrix=3000*ones(50,N);
-Weights_matrix(:,round(N*0.8)+1:end)=-3000;
+Weights_matrix=gamma*w_global*ones(fanout_ratio,N);
+Weights_matrix(:,round(N*0.8)+1:end)=-w_global;
 Weight=num2cell(Weights_matrix,1);
 
-delay_matrix=randi([1,20],[50,N])*ms;
+delay_matrix=randi([1,20],[fanout_ratio,N])*ms;
 delay_matrix(:,round(N*0.8)+1:end)=1*ms;
 Delay=num2cell(delay_matrix,1);
 

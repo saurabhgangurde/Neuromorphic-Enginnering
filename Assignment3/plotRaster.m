@@ -9,4 +9,5 @@ function [] = plotRaster(spikeMat, tVec)
         end
     end
     ylim([0 size(spikeMat, 1)+1]);
+    hold off;
 end
