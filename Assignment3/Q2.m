@@ -2,32 +2,31 @@
 
 %% Part A
 seed=200;
-rng(seed);
+rng(seed,'twister');
 
 ms=1E-3;
 N=500;
-
+fanout_ratio=N/10;
+Ne=N*0.80;
+Ni=N-Ne;
 %  creating network
-fanout_matrix=zeros(50,N);
-for i=1:round(N*0.8)
-    fanout_matrix(:,i)=randperm(N,50);
+fanout_matrix=zeros(N,fanout_ratio);
+for i=1:Ne
+    fanout_matrix(i,:)=randperm(N,fanout_ratio);
 end
-for i=round(N*0.8)+1:N
-    fanout_matrix(:,i)=randperm(round(N*0.8),50);
+for i=Ne+1:N
+    fanout_matrix(i,:)=randperm(Ne,fanout_ratio);
 end
-Fanout=num2cell(fanout_matrix,1);
 
-Weights_matrix=3000*ones(50,N);
-Weights_matrix(:,round(N*0.8)+1:end)=-3000;
-Weight=num2cell(Weights_matrix,1);
+Weights_matrix=3000*ones(N,fanout_ratio);
+Weights_matrix(Ne+1:end,:)=-3000;
 
-delay_matrix=randi([1,20],[50,N])*ms;
-delay_matrix(:,round(N*0.8)+1:end)=1*ms;
-Delay=num2cell(delay_matrix,1);
+delay_matrix=randi([1,20],[N,fanout_ratio])*ms;
+delay_matrix(round(N*0.8)+1:end,:)=1*ms;
 
 % constants
-delta_t=0.5*ms;
-T=1000*ms;
+delta_t=1*ms;
+T=500*ms;
 t=linspace(0,T,T/delta_t);
 Io=1E-12;
 tau=15*ms;
@@ -40,6 +39,7 @@ Rp=2*ms;
 ws=3000;
 
 % % forming Iext matrix
+tic
 lambda=100;
 myPoissonSpikeTrain = rand(25, T/delta_t) < lambda*delta_t;
 Iext_t= @(ts,t) Io*ws*(exp(-(t-ts)/tau)-exp(-(t-ts)/tau_s)).*(t>ts);
@@ -52,9 +52,11 @@ for i=1:25
 
 end
 
-[V,t,spikes]=LIF_dynamic( delta_t,T,N,Fanout,Weight,Delay,EL,gL,C,Vt,Iext);
-plotRaster(spikes,t);
 
+[V,t,spikes]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,EL,gL,C,Vt,Iext);
+
+imshow(spikes*255);
+plotRasster(spikes,t);
 Re_temp=sum(spikes(1:round(N*0.8),:),1);
 Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
 Re=zeros(1,T/delta_t-10*ms/delta_t);
