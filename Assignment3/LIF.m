@@ -19,7 +19,7 @@ function [ y,x] = LIF( delta_t,T,input,EL,gL,C,Vt)
             temp=y(:,i+1);
             index=find(temp>Vt);
             
-            temp(temp>Vt |spikes_time+1E-3/delta_t>i)=EL;
+            temp(temp>Vt |spikes_time+2E-3/delta_t>i)=EL;
             spikes_time(index)=i;
             
             y(:,i+1)=temp;

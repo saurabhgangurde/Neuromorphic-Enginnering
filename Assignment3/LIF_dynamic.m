@@ -23,6 +23,7 @@ function [ y,x,spikes] = LIF_dynamic( delta_t,T,N,Fanout,Weight,Delay,EL,gL,C,Vt
             k_2 = F_xy(Iapp(:,iter),y(:,iter)+delta_t*k_1);
 
             y(:,iter+1) = y(:,iter) + (1/2)*(k_1+2*k_2)*delta_t;  % main equation
+            %y(:,iter+1) = y(:,iter) + k_1*delta_t;  % main equation
             
             
             % determining which neuron will spike at ith interval
@@ -30,7 +31,7 @@ function [ y,x,spikes] = LIF_dynamic( delta_t,T,N,Fanout,Weight,Delay,EL,gL,C,Vt
             index=find(temp>Vt);
             
             
-            temp(temp>Vt )=EL;    %% refractory period involved
+            temp(temp>Vt |spikes_time+2E-3/delta_t>iter )=EL;    %% refractory period involved
             spikes_time(index)=iter;
             
             y(:,iter+1)=temp;
@@ -41,10 +42,11 @@ function [ y,x,spikes] = LIF_dynamic( delta_t,T,N,Fanout,Weight,Delay,EL,gL,C,Vt
             Isyn=zeros(N,T/delta_t);
             for i=1:N
                 fanout_nodes=Fanout{i};
-                for j=1:size(fanout_nodes,2)
-                    temp_spike_time=find(spikes(i,:)==1)*delta_t;
+                temp_spike_time=find(spikes(i,1:iter)==1)*delta_t;
+                for j=1:size(fanout_nodes,2)                    
                     for k=1:size(temp_spike_time,2)
-                        Isyn(fanout_nodes(j),iter+1)=Isyn(fanout_nodes(j),iter+1)+Isyn_t(Weight{i}(j),temp_spike_time(k),Delay{i}(j),x(iter+1));
+                        Isyn(fanout_nodes(j),iter+1)=Isyn(fanout_nodes(j),iter+1)+...
+                                                     Isyn_t(Weight{i}(j),temp_spike_time(k),Delay{i}(j),x(iter+1));
                     end
                 end
             end

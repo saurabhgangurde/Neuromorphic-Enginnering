@@ -1,14 +1,20 @@
 %% Q2 Dynamical Random network
 
 %% Part A
+seed=200;
+rng(seed);
 
 ms=1E-3;
 N=500;
 
 %  creating network
 fanout_matrix=zeros(50,N);
-fanout_matrix(:,1:round(N*0.8))=randi([1,500],[50,round(N*0.8)]);
-fanout_matrix(:,round(N*0.8)+1:end)=randi([1,round(N*0.8)],[50,N-round(N*0.8)]);
+for i=1:round(N*0.8)
+    fanout_matrix(:,i)=randperm(N,50);
+end
+for i=round(N*0.8)+1:N
+    fanout_matrix(:,i)=randperm(round(N*0.8),50);
+end
 Fanout=num2cell(fanout_matrix,1);
 
 Weights_matrix=3000*ones(50,N);
@@ -20,7 +26,7 @@ delay_matrix(:,round(N*0.8)+1:end)=1*ms;
 Delay=num2cell(delay_matrix,1);
 
 % constants
-delta_t=1*ms;
+delta_t=0.5*ms;
 T=1000*ms;
 t=linspace(0,T,T/delta_t);
 Io=1E-12;
@@ -58,5 +64,5 @@ for i=1:T/delta_t-10*ms/delta_t
     Ri(i)=sum(Ri_temp(i:i+10*ms/delta_t));
 end
 
-figure(2);
+figure();
 plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);

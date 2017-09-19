@@ -7,7 +7,7 @@ ms=1E-3;
 N=200;
 fanout_ratio=N/10;
 gamma=1;
-w_global=2000;
+w_global=3000;
 %  creating network
 fanout_matrix=zeros(fanout_ratio,N);
 fanout_matrix(:,1:round(N*0.8))=randi([1,N],[fanout_ratio,round(N*0.8)]);
