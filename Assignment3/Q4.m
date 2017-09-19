@@ -1,14 +1,15 @@
-%% Q2 Dynamical Random network
+%% Q4 Dynamical Random network
 
 %% Part A
 seed=200;
 rng(seed,'twister');
 
 ms=1E-3;
-N=500;
+N=200;
 fanout_ratio=N/10;
 Ne=N*0.80;
 Ni=N-Ne;
+
 %  creating network
 fanin=cell(1,N);
 fanout_matrix=zeros(N,fanout_ratio);
@@ -19,17 +20,23 @@ for i=Ne+1:N
     fanout_matrix(i,:)=randperm(Ne,fanout_ratio);
 end
 
-
-
-Weights_matrix=3000*ones(N,fanout_ratio);
-Weights_matrix(Ne+1:end,:)=-3000;
+for i=1:N
+    for j=1:fanout_ratio
+        fanin{fanout_matrix(i,j)}=[fanin{fanout_matrix(i,j)}, i];
+    end
+end
+gamma=1;
+wi=-3000;
+we=-gamma*wi;
+Weights_matrix=we*ones(N,fanout_ratio);
+Weights_matrix(Ne+1:end,:)=wi;
 
 delay_matrix=randi([1,20],[N,fanout_ratio])*ms;
 delay_matrix(round(N*0.8)+1:end,:)=1*ms;
 
 % constants
 delta_t=1*ms;
-T=1000*ms;
+T=500*ms;
 t=linspace(0,T,T/delta_t);
 Io=1E-12;
 tau=15*ms;
@@ -40,6 +47,8 @@ Vt=20*1E-3;
 C=300*1E-12;
 Rp=2*ms;
 ws=3000;
+Aup=0.01;
+Adown=-0.02;
 
 % % forming Iext matrix
 tic
@@ -56,7 +65,7 @@ for i=1:25
 end
 
 
-[V,t,spikes]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,1);
+[V,t,spikes]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,fanin,EL,gL,C,Vt,Iext,Aup,Adown,1);
 
 imshow(spikes*255);
 plotRaster(spikes,t);

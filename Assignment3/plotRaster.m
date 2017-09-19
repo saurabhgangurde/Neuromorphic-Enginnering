@@ -1,4 +1,5 @@
 function [] = plotRaster(spikeMat, tVec)
+    figure();
     hold all;
     for trialCount = 1:size(spikeMat,1)
         index=find(spikeMat(trialCount, :)==1);

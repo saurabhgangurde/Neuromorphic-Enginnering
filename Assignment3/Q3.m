@@ -1,30 +1,34 @@
-%% Q3 Dynamics of smaller networks
+%% Q3 Dynamical Random network
 
 %% Part A
 seed=200;
-rng(seed);
+rng(seed,'twister');
+
 ms=1E-3;
 N=200;
 fanout_ratio=N/10;
-gamma=1;
-w_global=3000;
+Ne=N*0.80;
+Ni=N-Ne;
 %  creating network
-fanout_matrix=zeros(fanout_ratio,N);
-fanout_matrix(:,1:round(N*0.8))=randi([1,N],[fanout_ratio,round(N*0.8)]);
-fanout_matrix(:,round(N*0.8)+1:end)=randi([1,round(N*0.8)],[fanout_ratio,N-round(N*0.8)]);
-Fanout=num2cell(fanout_matrix,1);
+fanout_matrix=zeros(N,fanout_ratio);
+for i=1:Ne
+    fanout_matrix(i,:)=randperm(N,fanout_ratio);
+end
+for i=Ne+1:N
+    fanout_matrix(i,:)=randperm(Ne,fanout_ratio);
+end
+gamma=0.5;
+wi=-6000;
+we=-gamma*wi;
+Weights_matrix=we*ones(N,fanout_ratio);
+Weights_matrix(Ne+1:end,:)=wi;
 
-Weights_matrix=gamma*w_global*ones(fanout_ratio,N);
-Weights_matrix(:,round(N*0.8)+1:end)=-w_global;
-Weight=num2cell(Weights_matrix,1);
-
-delay_matrix=randi([1,20],[fanout_ratio,N])*ms;
-delay_matrix(:,round(N*0.8)+1:end)=1*ms;
-Delay=num2cell(delay_matrix,1);
+delay_matrix=randi([1,20],[N,fanout_ratio])*ms;
+delay_matrix(round(N*0.8)+1:end,:)=1*ms;
 
 % constants
 delta_t=1*ms;
-T=1000*ms;
+T=500*ms;
 t=linspace(0,T,T/delta_t);
 Io=1E-12;
 tau=15*ms;
@@ -37,6 +41,7 @@ Rp=2*ms;
 ws=3000;
 
 % % forming Iext matrix
+tic
 lambda=100;
 myPoissonSpikeTrain = rand(25, T/delta_t) < lambda*delta_t;
 Iext_t= @(ts,t) Io*ws*(exp(-(t-ts)/tau)-exp(-(t-ts)/tau_s)).*(t>ts);
@@ -49,9 +54,11 @@ for i=1:25
 
 end
 
-[V,t,spikes]=LIF_dynamic( delta_t,T,N,Fanout,Weight,Delay,EL,gL,C,Vt,Iext);
-plotRaster(spikes,t);
 
+[V,t,spikes]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,1);
+
+imshow(spikes*255);
+plotRaster(spikes,t);
 Re_temp=sum(spikes(1:round(N*0.8),:),1);
 Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
 Re=zeros(1,T/delta_t-10*ms/delta_t);
@@ -61,5 +68,5 @@ for i=1:T/delta_t-10*ms/delta_t
     Ri(i)=sum(Ri_temp(i:i+10*ms/delta_t));
 end
 
-figure(2);
+figure();
 plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);

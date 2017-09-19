@@ -1,9 +1,11 @@
-function [ V,t,spikes] = LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,EL,gL,C,Vt,Iext)
+function [ V,t,spikes] = LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,Fanin,EL,gL,C,Vt,Iext,Aup,Adown,STDP)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
+tic
     Io=1E-12;
     tau=15E-3;
     tau_s=tau/4;
+    tau_l=20E-3;
 
     t=linspace(0,T,T/delta_t);
     V = zeros(N,size(t,2)); 
@@ -37,10 +39,33 @@ function [ V,t,spikes] = LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,d
                                                                 delay_matrix(i,j),t(time_t));
                 end
             end
+            
+            if STDP~=0 && i<N*0.8
+                % for downstream
+                fanout=fanout_matrix(i,:);
+                for j=1:size(fanout_matrix(i,:),2)
+                    if last_spike_time(i)>0 && last_spike_time(fanout(j))>0 
+                       Weights_matrix(i,j)=Weights_matrix(i,j)*...
+                           (1+Adown*exp(-(last_spike_time(i)*delta_t+delay_matrix(i,j)-last_spike_time(fanout(j))*delta_t)/tau_l));
+                    end
+                end
+                % upstream
+                
+                fanin=Fanin{i};
+                 for j=1:size(fanin,2)
+                    if last_spike_time(i)>0 && last_spike_time(fanin(j))>0 
+                        %fanin(j)
+                        fanout_index=find(fanout_matrix(fanin(j),:)==i);
+                        tj_last=last_spike_time(fanin(j))*delta_t+delay_matrix(fanin(j),fanout_index);
+                       Weights_matrix(fanin(j),fanout_index)=Weights_matrix(fanin(j),fanout_index)*...
+                           (1+Aup*exp(-(last_spike_time(i)*delta_t-tj_last*delta_t)/tau_l));
+                    end
+                 end
+            end
         end
         Iapp(1:size(Iext,1))=Iext(:,time_t+1)+Isyn(1:size(Iext,1));
         Iapp(size(Iext,1)+1:end)=Isyn(size(Iext,1)+1:end);
     end
-
+toc
 end
 
