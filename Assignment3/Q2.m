@@ -56,7 +56,7 @@ for i=1:25
 end
 
 
-[V,t,spikes]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,0);
+[V,t,spikes,none]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,0);
 
 imshow(spikes*255);
 plotRaster(spikes,t);

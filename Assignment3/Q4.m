@@ -65,7 +65,7 @@ for i=1:25
 end
 
 
-[V,t,spikes]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,fanin,EL,gL,C,Vt,Iext,Aup,Adown,1);
+[V,t,spikes,average_synaptic_strength]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,fanin,EL,gL,C,Vt,Iext,Aup,Adown,1);
 
 imshow(spikes*255);
 plotRaster(spikes,t);
@@ -80,3 +80,5 @@ end
 
 figure();
 plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);
+figure();
+plot(t(1:end-1),average_synaptic_strength(1:end-1));

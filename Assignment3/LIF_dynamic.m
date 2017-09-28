@@ -1,4 +1,4 @@
-function [ V,t,spikes] = LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,Fanin,EL,gL,C,Vt,Iext,Aup,Adown,STDP)
+function [ V,t,spikes,average_synaptic_strength] = LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,Fanin,EL,gL,C,Vt,Iext,Aup,Adown,STDP)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 tic
@@ -16,8 +16,10 @@ tic
     Iapp=zeros(size(V,1),1);
     Isyn_t= @(we,tk,td,t) Io*we*(exp(-(t-tk-td)/tau)-exp(-(t-tk-td)/tau_s)).*(t>tk+td);
     Iapp(1:size(Iext,1))=Iext(:,1);
+    average_synaptic_strength=zeros(size(t));
     for time_t=1:T/delta_t-1
         time_t
+        average_synaptic_strength(time_t)=mean(mean(Weights_matrix(1:N*0.8,:)));
         k_1 = F(Iapp,V(:,time_t));
         V(:,time_t+1) = V(:,time_t) + k_1*delta_t;  % main equation
         time_t_V=V(:,time_t+1);
