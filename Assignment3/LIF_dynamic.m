@@ -40,29 +40,41 @@ tic
                 end
             end
             
-            if STDP~=0 && i<N*0.8
-                % for downstream
+            if (STDP==1 && i<N*0.8 && last_spike_time(i)==time_t)
+                % forward
                 fanout=fanout_matrix(i,:);
-                for j=1:size(fanout_matrix(i,:),2)
-                    if last_spike_time(i)>0 && last_spike_time(fanout(j))>0 
-                       Weights_matrix(i,j)=Weights_matrix(i,j)*...
-                           (1+Adown*exp(-(last_spike_time(i)*delta_t+delay_matrix(i,j)-last_spike_time(fanout(j))*delta_t)/tau_l));
+                for j=1:size(fanout,2)
+                    if(last_spike_time(fanout(j))>0)
+                        t_j_last=last_spike_time(fanout(j))*delta_t;
+                        delay_i_j=delay_matrix(i,j);
+                        t_i_k=time_t*delta_t;
+                        Weights_matrix(i,j)=Weights_matrix(i,j)*(1+Adown*exp(-(t_i_k+delay_i_j-t_j_last)/tau_l));
                     end
                 end
-                % upstream
                 
+                % backward
                 fanin=Fanin{i};
-                 for j=1:size(fanin,2)
-                    if last_spike_time(i)>0 && last_spike_time(fanin(j))>0 
-                        %fanin(j)
+   
+                for j=1:size(fanin,2)
+                    if last_spike_time(fanin(j)) >0
+                        t_i_k=time_t*delta_t;
                         fanout_index=find(fanout_matrix(fanin(j),:)==i);
-                        tj_last=last_spike_time(fanin(j))*delta_t+delay_matrix(fanin(j),fanout_index);
-                       Weights_matrix(fanin(j),fanout_index)=Weights_matrix(fanin(j),fanout_index)*...
-                           (1+Aup*exp(-(last_spike_time(i)*delta_t-tj_last*delta_t)/tau_l));
+                        t_j_spikes=find(spikes(fanin(j),:)==1)*delta_t;
+                        for k=1:size(t_j_spikes,2)
+                            t_j_last=t_j_spikes(k)*delta_t+delay_matrix(fanin(j),fanout_index);
+                            if(t_j_last<t_i_k)
+                                break
+                            end
+                        end
+                        Weights_matrix(fanin(j),fanout_index)=Weights_matrix(fanin(j),fanout_index)*...
+                            (1+Aup*exp(-(t_i_k-t_j_last)/tau_l));
+
                     end
-                 end
+                end
             end
+     
         end
+   
         Iapp(1:size(Iext,1))=Iext(:,time_t+1)+Isyn(1:size(Iext,1));
         Iapp(size(Iext,1)+1:end)=Isyn(size(Iext,1)+1:end);
     end

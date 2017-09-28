@@ -36,7 +36,7 @@ delay_matrix(round(N*0.8)+1:end,:)=1*ms;
 
 % constants
 delta_t=1*ms;
-T=500*ms;
+T=1000*ms;
 t=linspace(0,T,T/delta_t);
 Io=1E-12;
 tau=15*ms;
