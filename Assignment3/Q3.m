@@ -1,4 +1,4 @@
-%% Q3 Dynamical Random network
+%% Q3 Dynamics of smaller networks
 
 %% Part A
 seed=200;
@@ -17,8 +17,8 @@ end
 for i=Ne+1:N
     fanout_matrix(i,:)=randperm(Ne,fanout_ratio);
 end
-gamma=0.5;
-wi=-6000;
+gamma=1;
+wi=-3000;
 we=-gamma*wi;
 Weights_matrix=we*ones(N,fanout_ratio);
 Weights_matrix(Ne+1:end,:)=wi;
@@ -41,7 +41,7 @@ Rp=2*ms;
 ws=3000;
 
 % % forming Iext matrix
-tic
+
 lambda=100;
 myPoissonSpikeTrain = rand(25, T/delta_t) < lambda*delta_t;
 Iext_t= @(ts,t) Io*ws*(exp(-(t-ts)/tau)-exp(-(t-ts)/tau_s)).*(t>ts);
@@ -57,7 +57,8 @@ end
 
 [V,t,spikes,none]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,0);
 
-imshow(spikes*255);
+imshow(255*spikes);
+title('Raster plot as an image(W=1000)');
 plotRaster(spikes,t);
 Re_temp=sum(spikes(1:round(N*0.8),:),1);
 Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
@@ -70,3 +71,105 @@ end
 
 figure();
 plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);
+title('Re(t) and Ri(t)')
+xlabel('time');ylabel('counts');
+
+%% Part B we=1000
+gamma=1;
+wi=-1000;
+we=-gamma*wi;
+Weights_matrix=we*ones(N,fanout_ratio);
+Weights_matrix(Ne+1:end,:)=wi;
+
+delay_matrix=randi([1,20],[N,fanout_ratio])*ms;
+delay_matrix(round(N*0.8)+1:end,:)=1*ms;
+
+[V,t,spikes,none]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,0);
+
+
+imshow(spikes*255);
+title('Raster plot as an image(W=1000)');
+plotRaster(spikes,t);
+
+Re_temp=sum(spikes(1:round(N*0.8),:),1);
+Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
+Re=zeros(1,T/delta_t-10*ms/delta_t);
+Ri=zeros(1,T/delta_t-10*ms/delta_t);
+for i=1:T/delta_t-10*ms/delta_t
+    Re(i)=sum(Re_temp(i:i+10*ms/delta_t));
+    Ri(i)=sum(Ri_temp(i:i+10*ms/delta_t));
+end
+
+figure();
+plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);
+
+%% Part B we=4000
+gamma=1;
+wi=-4000;
+we=-gamma*wi;
+Weights_matrix=we*ones(N,fanout_ratio);
+Weights_matrix(Ne+1:end,:)=wi;
+
+delay_matrix=randi([1,20],[N,fanout_ratio])*ms;
+delay_matrix(round(N*0.8)+1:end,:)=1*ms;
+
+[V,t,spikes,none]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,0);
+
+
+imshow(spikes*255);
+title('Raster plot as an image(W=4000)');
+plotRaster(spikes,t);
+
+Re_temp=sum(spikes(1:round(N*0.8),:),1);
+Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
+Re=zeros(1,T/delta_t-10*ms/delta_t);
+Ri=zeros(1,T/delta_t-10*ms/delta_t);
+for i=1:T/delta_t-10*ms/delta_t
+    Re(i)=sum(Re_temp(i:i+10*ms/delta_t));
+    Ri(i)=sum(Ri_temp(i:i+10*ms/delta_t));
+end
+
+figure();
+plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);
+title('Re(t) and Ri(t)')
+xlabel('time');ylabel('counts');
+
+%% Part C
+% The net excitation in the network should be decreased in order to observe
+% the network behavior observed in problem 2 
+% And
+% The net inhibition in the network should be increased in order to observe
+% the network behavior observed in problem 2
+
+%% Part D
+
+% we=4000 gamma=0.5
+gamma=0.5;
+wi=-4000;
+we=-gamma*wi;
+Weights_matrix=we*ones(N,fanout_ratio);
+Weights_matrix(Ne+1:end,:)=wi;
+
+delay_matrix=randi([1,20],[N,fanout_ratio])*ms;
+delay_matrix(round(N*0.8)+1:end,:)=1*ms;
+
+[V,t,spikes,none]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,0);
+
+
+imshow(spikes*255);
+title('Raster plot as an image(W=4000 gamma=0.5)');
+plotRaster(spikes,t);
+
+Re_temp=sum(spikes(1:round(N*0.8),:),1);
+Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
+Re=zeros(1,T/delta_t-10*ms/delta_t);
+Ri=zeros(1,T/delta_t-10*ms/delta_t);
+for i=1:T/delta_t-10*ms/delta_t
+    Re(i)=sum(Re_temp(i:i+10*ms/delta_t));
+    Ri(i)=sum(Ri_temp(i:i+10*ms/delta_t));
+end
+
+figure();
+plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);
+title('Re(t) and Ri(t)')
+xlabel('time');ylabel('counts');

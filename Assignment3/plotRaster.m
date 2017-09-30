@@ -10,5 +10,6 @@ function [] = plotRaster(spikeMat, tVec)
         end
     end
     ylim([0 size(spikeMat, 1)+1]);
+    title('Raster Plot');xlabel('Time in s');ylabel('Neurons');
     hold off;
 end

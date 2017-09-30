@@ -1,4 +1,4 @@
-%% Q4 Dynamical Random network
+%% Q4 Adjusting the weights dynamically
 
 %% Part A
 seed=200;
@@ -51,7 +51,7 @@ Aup=0.01;
 Adown=-0.02;
 
 % % forming Iext matrix
-tic
+
 lambda=100;
 myPoissonSpikeTrain = rand(25, T/delta_t) < lambda*delta_t;
 Iext_t= @(ts,t) Io*ws*(exp(-(t-ts)/tau)-exp(-(t-ts)/tau_s)).*(t>ts);
@@ -68,7 +68,9 @@ end
 [V,t,spikes,average_synaptic_strength]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,fanin,EL,gL,C,Vt,Iext,Aup,Adown,1);
 
 imshow(spikes*255);
+title('Raster plot as an image');
 plotRaster(spikes,t);
+
 Re_temp=sum(spikes(1:round(N*0.8),:),1);
 Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
 Re=zeros(1,T/delta_t-10*ms/delta_t);
@@ -80,5 +82,10 @@ end
 
 figure();
 plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);
+title('Re(t) and Ri(t)')
+xlabel('time');ylabel('counts');
+
+%% Part B
 figure();
 plot(t(1:end-1),average_synaptic_strength(1:end-1));
+title('Average Synaptic Weight Vs Time');

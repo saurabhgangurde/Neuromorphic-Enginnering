@@ -1,5 +1,6 @@
-function [ V,t,spikes,average_synaptic_strength] = LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,Fanin,EL,gL,C,Vt,Iext,Aup,Adown,STDP)
+function [ V,t,spikes,average_synaptic_strength] = LIF_dynamic_mySTDP( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,Fanin,EL,gL,C,Vt,Iext,Aup,Adown,STDP)
 
+    n=0.8;
     Io=1E-12;
     tau=15E-3;
     tau_s=tau/4;
@@ -15,8 +16,8 @@ function [ V,t,spikes,average_synaptic_strength] = LIF_dynamic( delta_t,T,N,fano
     Isyn_t= @(we,tk,td,t) Io*we*(exp(-(t-tk-td)/tau)-exp(-(t-tk-td)/tau_s)).*(t>tk+td);
     Iapp(1:size(Iext,1))=Iext(:,1);
     average_synaptic_strength=zeros(size(t));
-    for time_t=1:T/delta_t-1
-        %time_t
+    for time_t=1:T/delta_t-1    
+        time_t
         average_synaptic_strength(time_t)=mean(mean(Weights_matrix(1:N*0.8,:)));
         k_1 = F(Iapp,V(:,time_t));
         V(:,time_t+1) = V(:,time_t) + k_1*delta_t;  % main equation
@@ -40,17 +41,23 @@ function [ V,t,spikes,average_synaptic_strength] = LIF_dynamic( delta_t,T,N,fano
                 end
             end
             
+            random=rand;
             if (STDP==1 && i<N*0.8 && last_spike_time(i)==time_t)
                 % forward
+                
                 fanout=fanout_matrix(i,:);
                 for j=1:size(fanout,2)
                     if(last_spike_time(fanout(j))>0)
                         t_j_last=last_spike_time(fanout(j))*delta_t;
                         delay_i_j=delay_matrix(i,j);
                         t_i_k=time_t*delta_t;
-                        Weights_matrix(i,j)=Weights_matrix(i,j)*(1+Adown*exp(-(t_i_k+delay_i_j-t_j_last)/tau_l));
+                        %if random >n
+                        Weights_matrix(i,j)=Weights_matrix(i,j)*(1+Adown*...
+                            exp(-(t_i_k+delay_i_j-t_j_last)/tau_l));
+                        %end
                     end
                 end
+                
                 
                 % backward
                 fanin=Fanin{i};
@@ -66,8 +73,10 @@ function [ V,t,spikes,average_synaptic_strength] = LIF_dynamic( delta_t,T,N,fano
                                 break
                             end
                         end
+                        if random> n
                         Weights_matrix(fanin(j),fanout_index)=Weights_matrix(fanin(j),fanout_index)*...
-                            (1+Aup*exp(-(t_i_k-t_j_last)/tau_l));
+                            (1+Aup*exp(-(t_i_k-t_j_last)/tau_l*50));
+                        end
 
                     end
                 end

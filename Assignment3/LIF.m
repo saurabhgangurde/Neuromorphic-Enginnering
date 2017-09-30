@@ -1,6 +1,5 @@
 function [ y,x] = LIF( delta_t,T,input,EL,gL,C,Vt)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+
     x = linspace(0,T,T/delta_t);                                         % Calculates upto y(3)
     y = zeros(size(input,1),size(x,2)); 
     y(:,1) = EL;                                          % initial condition
@@ -20,6 +19,7 @@ function [ y,x] = LIF( delta_t,T,input,EL,gL,C,Vt)
             index=find(temp>Vt);
             
             temp(temp>Vt |spikes_time+2E-3/delta_t>i)=EL;
+            
             spikes_time(index)=i;
             
             y(:,i+1)=temp;

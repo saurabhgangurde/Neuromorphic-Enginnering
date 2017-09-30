@@ -1,17 +1,16 @@
-%% Q2 Dynamical Random network
+%% Q4 Adjusting the weights dynamically
 
 %% Part A
 seed=200;
 rng(seed,'twister');
 
 ms=1E-3;
-N=500;
+N=200;
 fanout_ratio=N/10;
 Ne=N*0.80;
 Ni=N-Ne;
+
 %  creating network
-% 1-400 neurons= exitatory
-% 400*500 neurons= inhibitory
 fanin=cell(1,N);
 fanout_matrix=zeros(N,fanout_ratio);
 for i=1:Ne
@@ -21,10 +20,16 @@ for i=Ne+1:N
     fanout_matrix(i,:)=randperm(Ne,fanout_ratio);
 end
 
-
-
-Weights_matrix=3000*ones(N,fanout_ratio);
-Weights_matrix(Ne+1:end,:)=-3000;
+for i=1:N
+    for j=1:fanout_ratio
+        fanin{fanout_matrix(i,j)}=[fanin{fanout_matrix(i,j)}, i];
+    end
+end
+gamma=1;
+wi=-3000;
+we=-gamma*wi;
+Weights_matrix=we*ones(N,fanout_ratio);
+Weights_matrix(Ne+1:end,:)=wi;
 
 delay_matrix=randi([1,20],[N,fanout_ratio])*ms;
 delay_matrix(round(N*0.8)+1:end,:)=1*ms;
@@ -42,6 +47,8 @@ Vt=20*1E-3;
 C=300*1E-12;
 Rp=2*ms;
 ws=3000;
+Aup=0.1;
+Adown=-0.2;
 
 % % forming Iext matrix
 
@@ -58,13 +65,12 @@ for i=1:25
 end
 
 
-[V,t,spikes,none]=LIF_dynamic( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,0,EL,gL,C,Vt,Iext,0,0,0);
+[V,t,spikes,average_synaptic_strength]=LIF_dynamic_mySTDP( delta_t,T,N,fanout_matrix,Weights_matrix,delay_matrix,fanin,EL,gL,C,Vt,Iext,Aup,Adown,1);
 
-figure()
 imshow(spikes*255);
 title('Raster plot as an image');
 plotRaster(spikes,t);
-%% Part B
+
 Re_temp=sum(spikes(1:round(N*0.8),:),1);
 Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
 Re=zeros(1,T/delta_t-10*ms/delta_t);
@@ -78,7 +84,8 @@ figure();
 plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);
 title('Re(t) and Ri(t)')
 xlabel('time');ylabel('counts');
-%% Part C
-% Spikes happens after approximately regular intervals because of random
-% nature of input.Neural Network adaptes to random input and starts giving
-% spikes
+
+%% Part B
+figure();
+plot(t(1:end-1),average_synaptic_strength(1:end-1));
+title('Average Synaptic Weight Vs Time');
