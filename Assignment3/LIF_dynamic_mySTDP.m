@@ -17,7 +17,7 @@ function [ V,t,spikes,average_synaptic_strength] = LIF_dynamic_mySTDP( delta_t,T
     Iapp(1:size(Iext,1))=Iext(:,1);
     average_synaptic_strength=zeros(size(t));
     for time_t=1:T/delta_t-1    
-        time_t
+        %time_t
         average_synaptic_strength(time_t)=mean(mean(Weights_matrix(1:N*0.8,:)));
         k_1 = F(Iapp,V(:,time_t));
         V(:,time_t+1) = V(:,time_t) + k_1*delta_t;  % main equation

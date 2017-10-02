@@ -1,6 +1,16 @@
-%% Q4 Adjusting the weights dynamically
+%% Q5 A network that adapts dynamically
 
 %% Part A
+% % <latex>
+% \item Use Similar rule as given in assigment but with some modifications.
+% \item Use Different time constants for STDP And Anti-STDP
+% \item Update Anti STDP normally but Update STDP probabilistically (i.e. randomly updates weights of synapses...
+%  when it is STDP and update unconditionally when it is Anti-STDP.
+% \item Increase Aup and Adown for smaller network which will decrease
+% adaptation time.
+% </latex>
+
+%% Part B
 seed=200;
 rng(seed,'twister');
 
@@ -36,7 +46,7 @@ delay_matrix(round(N*0.8)+1:end,:)=1*ms;
 
 % constants
 delta_t=1*ms;
-T=1000*ms;
+T=2000*ms;
 t=linspace(0,T,T/delta_t);
 Io=1E-12;
 tau=15*ms;
@@ -71,6 +81,9 @@ imshow(spikes*255);
 title('Raster plot as an image');
 plotRaster(spikes,t);
 
+
+
+%% Part C
 Re_temp=sum(spikes(1:round(N*0.8),:),1);
 Ri_temp=sum(spikes(round(N*0.8)+1:end,:),1);
 Re=zeros(1,T/delta_t-10*ms/delta_t);
@@ -85,7 +98,6 @@ plot(t(1:T/delta_t-10*ms/delta_t),Re,t(1:T/delta_t-10*ms/delta_t),Ri);
 title('Re(t) and Ri(t)')
 xlabel('time');ylabel('counts');
 
-%% Part B
 figure();
 plot(t(1:end-1),average_synaptic_strength(1:end-1));
 title('Average Synaptic Weight Vs Time');
