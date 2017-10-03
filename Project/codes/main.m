@@ -1,4 +1,5 @@
 
+rng(100);
 Nin=32*32;
 Nout=4;
 Ntotal=Nin+Nout;
@@ -10,13 +11,13 @@ T=0.6*us;
 delta_t=1*ns;
 t=0:delta_t:T;
 Vth=1;
-Cm=1E-12;
+Cm=1E-9;
 R=1E6;
 
 spikes=zeros(Ntotal,size(t,2));
 
 Weights=500E3*rand(Ntotal,4);    % 500K = max Resistance state of synapse
-Weights(Nin+1:end,:)=500;
+Weights(Nin+1:end,:)=0.001;
 Weights_init=Weights;
 SET_threshold=normrnd(1.95,0.15,[Ntotal,4]);
 RESET_threshold=-1.7;
@@ -24,49 +25,64 @@ RESET_threshold=-1.7;
 load('./database/database.mat')
 weak_spike=0.8*ones(1,500);
 strong_spike=[-0.8*ones(1,10) 1.9*ones*ones(1,10)];
-for iter=1:200
-    iter
-    
-    image=database{1,iter};
-    input=reshape(image,[32*32,1]);
-    spiking_neurons=find(input>100);
-    spikes(spiking_neurons,1:500)=ones(size(spiking_neurons))*weak_spike;
-    Voltages=zeros(Nout,size(t,2));
-    Isyn=zeros(4,size(t,2));
-    
-    % simulation for time T
-    for time_t=1:size(t,2)-1
-        for output=1:4
-            
-            Isyn(output,time_t)=sum((spikes(1:Nin,time_t)-spikes(Nin+output,time_t))./Weights(1:Nin,output))...
-                               +sum((spikes(Nin+output,time_t)-spikes(Nin+1:end,time_t))./Weights(Nin+1:end,output));
-            for input=1:Nin
-                %[input spikes(input,time_t)-spikes(Nin+output,time_t)]
-                if spikes(input,time_t)-spikes(Nin+output,time_t)>SET_threshold(input,output)  % SET condition
-                    %fprintf('here\n');
-                    Weights(input,output)=500;
-                else if spikes(input,time_t)-spikes(Nin+output,time_t)<RESET_threshold         % RESET condition
-                     %fprintf('here RESET\n');
-                    SET_threshold(input,output)=normrnd(1.95,0.3);
-                    Weights(input,output)=Weights(input,output)+500;
-                            if Weights(input,output)>500E3
-                                Weights(input,output)=500E3;
-                            end
+
+for epoch=1:1
+    epoch
+    for iter=1:200
+        iter
+
+        image=database{1,iter};
+        input=reshape(image,[32*32,1]);
+        spiking_neurons=find(input>100);
+        spikes(spiking_neurons,1:500)=ones(size(spiking_neurons))*weak_spike;
+        Voltages=zeros(Nout,size(t,2));
+        Isyn=zeros(4,size(t,2));
+        last_spike=zeros(Nout)-100;
+        winning_spike=-100;
+        winning_neuron=0;
+
+        % simulation for time T
+        for time_t=1:size(t,2)-1
+            %time_t
+            for output=1:4
+                Isyn(output,time_t)=sum((spikes(1:Nin,time_t)-spikes(Nin+output,time_t))./Weights(1:Nin,output));
+
+
+                if winning_spike+20<time_t 
+                    Voltages(output,time_t+1)=1/Cm*(Isyn(output,time_t)-Voltages(output,time_t)/R)*delta_t+Voltages(output,time_t);
+
+                else if winning_neuron~=output && winning_neuron~=0
+                        Voltages(output,time_t+1)=0;
+                    end
+                end
+                %[Voltages(output,time_t+1),1/Cm*(Isyn(output,time_t)-Voltages(output,time_t)/R)*delta_t,output,time_t]
+
+                if (Voltages(output,time_t+1)>1) && winning_spike+20<time_t
+
+                    last_spike(output)=time_t;
+                    winning_spike=time_t;
+                    winning_neuron=output;
+                    Voltages(1:end,time_t)=0;
+                    spikes(Nin+output,time_t+1:time_t+20)=strong_spike;
+                    %[output,time_t]
+                end
+
+                for input=1:Nin
+
+                    if spikes(input,time_t)-spikes(Nin+output,time_t)>SET_threshold(input,output)  % SET condition
+                        Weights(input,output)=10000;
+                    else if spikes(input,time_t)-spikes(Nin+output,time_t)<RESET_threshold         % RESET condition
+                         %fprintf('here RESET\n');
+                         %SET_threshold(input,output)=normrnd(1.95,0.3);
+                        Weights(input,output)=Weights(input,output)+10000;
+                                if Weights(input,output)>500E3
+                                    Weights(input,output)=500E3;
+                                end
+                        end
                     end
                 end
             end
-            %Isyn(output,time_t)
-            Voltages(output,time_t+1)=1/Cm*(Isyn(output,time_t)-Voltages(output,time_t)/R)*delta_t+Voltages(output,time_t);
-            
-            if Voltages(output,time_t+1) >1
-                %[output, Voltages(output,time_t+1),Voltages(output,time_t), time_t]
-                Voltages(output,time_t+1)=0;
-                if spikes(Nin+output,time_t+1)==0
-                    spikes(Nin+output,time_t+1:time_t+20)=strong_spike;
-                end
-                %output
-            end           
-            
+
         end
     end
 end
