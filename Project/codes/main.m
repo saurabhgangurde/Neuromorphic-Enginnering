@@ -6,7 +6,7 @@ Ntotal=Nin+Nout;
 % defining Weights matrix
 ns=1E-9;
 us=1E-6;
-T=1*us;
+T=0.6*us;
 delta_t=1*ns;
 t=0:delta_t:T;
 Vth=1;
@@ -18,8 +18,8 @@ spikes=zeros(Ntotal,size(t,2));
 Weights=500E3*rand(Ntotal,4);    % 500K = max Resistance state of synapse
 Weights(Nin+1:end,:)=500;
 Weights_init=Weights;
-SET_threshold=1.6*ones(Ntotal,4)+sqrt(0.15)*rand(Ntotal,4);
-RESET_threshold=-1.5;
+SET_threshold=normrnd(1.95,0.15,[Ntotal,4]);
+RESET_threshold=-1.7;
 
 load('./database/database.mat')
 weak_spike=0.8*ones(1,500);
@@ -46,14 +46,12 @@ for iter=1:200
                     %fprintf('here\n');
                     Weights(input,output)=500;
                 else if spikes(input,time_t)-spikes(Nin+output,time_t)<RESET_threshold         % RESET condition
-                        %fprintf('here RESET\n');
-                    SET_threshold(input,output)=1.95+sqrt(0.3)*rand;
-                        if Weights(input,output)>500
-                            Weights(input,output)=Weights(input,output)+500;
+                     %fprintf('here RESET\n');
+                    SET_threshold(input,output)=normrnd(1.95,0.3);
+                    Weights(input,output)=Weights(input,output)+500;
                             if Weights(input,output)>500E3
                                 Weights(input,output)=500E3;
                             end
-                        end
                     end
                 end
             end
