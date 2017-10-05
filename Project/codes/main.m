@@ -11,7 +11,7 @@ T=0.6*us;
 delta_t=1*ns;
 t=0:delta_t:T;
 Vth=1;
-Cm=1E-12;
+Cm=1E-10;
 R=1E6;
 
 
@@ -19,7 +19,7 @@ R=1E6;
 Weights=500E3*rand(Ntotal,4);    % 500K = max Resistance state of synapse
 Weights(Nin+1:end,:)=0.001;
 Weights_init=Weights;
-%SET_threshold=normrnd(1.6,0.15,[Ntotal,4]);
+SET_threshold=normrnd(1.6,0.15,[Ntotal,4]);
 %SET_threshold=1.5+rand([Ntotal,4]);
 RESET_threshold=-1.7;
 
@@ -73,10 +73,10 @@ for epoch=1:1
 
                 for input=1:Nin
 
-                   % if spikes(input,time_t)-spikes(Nin+output,time_t)>SET_threshold(input,output) % SET condition
-                   if spikes(input,time_t)-spikes(Nin+output,time_t)>=1.65 && rand>0
+                    if spikes(input,time_t)-spikes(Nin+output,time_t)>SET_threshold(input,output) % SET condition
+                   %if spikes(input,time_t)-spikes(Nin+output,time_t)>1.4 && rand>0.5
                         %fprintf('here SET\n');
-                        Weights(input,output)=500;
+                        Weights(input,output)=5000;
                     else if spikes(input,time_t)-spikes(Nin+output,time_t)<RESET_threshold         % RESET condition
                          %fprintf('here RESET\n');
                          %SET_threshold(input,output)=normrnd(1.95,0.3);
