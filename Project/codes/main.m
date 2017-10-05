@@ -80,7 +80,7 @@ for epoch=1:1
                     else if spikes(input,time_t)-spikes(Nin+output,time_t)<RESET_threshold         % RESET condition
                          %fprintf('here RESET\n');
                          %SET_threshold(input,output)=normrnd(1.95,0.3);
-                        Weights(input,output)=Weights(input,output)+5000;
+                        Weights(input,output)=Weights(input,output)+500;
                                 if Weights(input,output)>500E3
                                     Weights(input,output)=500E3;
                                 end
