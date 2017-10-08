@@ -47,8 +47,8 @@ for epoch=1:1
         for time_t=1:size(t,2)-1
             %time_t
             for output=1:4
-                Isyn(output,time_t)=sum((spikes(1:Nin,time_t)-spikes(Nin+output,time_t))./Weights(1:Nin,output));...
-                                    %-sum((spikes(Nin+1:end,time_t)-spikes(Nin+output,time_t))./500);
+                Isyn(output,time_t)=sum((spikes(1:Nin,time_t)-spikes(Nin+output,time_t))./Weights(1:Nin,output))...
+                                    -sum((spikes(Nin+1:end,time_t)-spikes(Nin+output,time_t))./500);
 
 
                 if winning_spike+20<time_t 
@@ -74,13 +74,12 @@ for epoch=1:1
                 for input=1:Nin
 
                     if spikes(input,time_t)-spikes(Nin+output,time_t)>SET_threshold(input,output) % SET condition
-                   %if spikes(input,time_t)-spikes(Nin+output,time_t)>1.4 && rand>0.5
-                        %fprintf('here SET\n');
-                        Weights(input,output)=5000;
+                  
+                        Weights(input,output)=50000;
                     else if spikes(input,time_t)-spikes(Nin+output,time_t)<RESET_threshold         % RESET condition
-                         %fprintf('here RESET\n');
+                         
                          %SET_threshold(input,output)=normrnd(1.95,0.3);
-                        Weights(input,output)=Weights(input,output)+50;
+                            Weights(input,output)=Weights(input,output)+500;
                                 if Weights(input,output)>500E3
                                     Weights(input,output)=500E3;
                                 end
@@ -97,10 +96,9 @@ end
         
 max_resistance=500E3;          
 figure(1)
-imshow([uint8(reshape(Weights_init(1:32*32,1),[32,32])/max_resistance*255) uint8(reshape(Weights(1:32*32,1),[32,32])/max_resistance*255)])
-figure(2)
-imshow([uint8(reshape(Weights_init(1:32*32,2),[32,32])/max_resistance*255) uint8(reshape(Weights(1:32*32,2),[32,32])/max_resistance*255)])
-figure(3)
-imshow([uint8(reshape(Weights_init(1:32*32,3),[32,32])/max_resistance*255) uint8(reshape(Weights(1:32*32,3),[32,32])/max_resistance*255)])
-figure(4)
-imshow([uint8(reshape(Weights_init(1:32*32,4),[32,32])/max_resistance*255) uint8(reshape(Weights(1:32*32,4),[32,32])/max_resistance*255)])
+imshow([ uint8(reshape(Weights_init(1:32*32,1),[32,32])/max_resistance*255) uint8(reshape(Weights(1:32*32,1),[32,32])/max_resistance*255)...
+        ;uint8(reshape(Weights_init(1:32*32,2),[32,32])/max_resistance*255) uint8(reshape(Weights(1:32*32,2),[32,32])/max_resistance*255)...
+        ;uint8(reshape(Weights_init(1:32*32,3),[32,32])/max_resistance*255) uint8(reshape(Weights(1:32*32,3),[32,32])/max_resistance*255)...
+        ;uint8(reshape(Weights_init(1:32*32,4),[32,32])/max_resistance*255) uint8(reshape(Weights(1:32*32,4),[32,32])/max_resistance*255)]);
+
+save('./database/Weights.mat','Weights');
