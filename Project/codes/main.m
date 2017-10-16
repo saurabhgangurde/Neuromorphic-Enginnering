@@ -75,7 +75,7 @@ for epoch=1:1
 
                     if spikes(input,time_t)-spikes(Nin+output,time_t)>SET_threshold(input,output) % SET condition
                   
-                        Weights(input,output)=50000;
+                        %Weights(input,output)=50000;
                     else if spikes(input,time_t)-spikes(Nin+output,time_t)<RESET_threshold         % RESET condition
                          
                          %SET_threshold(input,output)=normrnd(1.95,0.3);
